@@ -2,16 +2,24 @@ import React, { useState } from 'react';
 import { View, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import { Auth } from 'aws-amplify';
 
-const SignInScreen = ({ navigation }) => {
+const SignUpScreen = ({ navigation }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
 
-  const handleSignIn = async () => {
+  const handleSignUp = async () => {
     try {
-      await Auth.signIn(username, password);
-      navigation.navigate('Home');
+      const { user } = await Auth.signUp({
+        username,
+        password,
+        attributes: {
+          email,
+        }
+      });
+      Alert.alert('Sign Up Successful', `User ${user.username} created!`);
+      navigation.navigate('SignIn');
     } catch (error) {
-      Alert.alert('Sign In Error', error.message);
+      Alert.alert('Sign Up Error', error.message);
     }
   };
 
@@ -25,13 +33,20 @@ const SignInScreen = ({ navigation }) => {
       />
       <TextInput
         style={styles.input}
+        placeholder="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
         placeholder="Password"
         value={password}
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button title="Sign In" onPress={handleSignIn} />
-      <Button title="Go to Sign Up" onPress={() => navigation.navigate('SignUp')} />
+      <Button title="Sign Up" onPress={handleSignUp} />
+      <Button title="Go to Sign In" onPress={() => navigation.navigate('SignIn')} />
     </View>
   );
 };
@@ -52,4 +67,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignInScreen;
+export default SignUpScreen;
